@@ -1,0 +1,19 @@
+FROM golang:1.10-alpine3.8 AS goappbuilder
+
+WORKDIR /go/src/webapp
+COPY webapp.go .
+
+RUN \
+    go get -d -v \
+    && go install -v \
+    && go build
+
+## stage 2: use output from previous stage
+
+FROM alpine:3.8
+
+COPY --from=goappbuilder /go/bin/webapp /go/bin/
+
+EXPOSE 8080
+
+CMD ["/go/bin/webapp"]
